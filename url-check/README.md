@@ -5,8 +5,16 @@ connection issues in apps written in Go using the net/http package.
 
 It manages http and https connections and accepts insecure tls certificates by default.
 
+### Build
 
-Usage:
+To build the binary you need **Go >= 1.6** and optionally the **make** tool installed.
+
+```
+$ make
+$ sudo make install
+```
+
+### Usage
 
 ```
 $ url-check https://www.example.com
@@ -25,6 +33,11 @@ it can be used to test how proxy and proxy exclusions work:
 $ HTTP_PROXY=http://proxy:8080 HTTPS_PROXY=http://proxy:8080 NO_PROXY=myregistry https://myregistry:5000/v2/_catalog
 ```
 
-HINT: keep in mind that HTTPS_PROXY has higher priority over HTTP_PROXY.
+The env variables for proxies are:
 
+- **HTTP_PROXY**
+- **HTTPS_PROXY**
+- **NO_PROXY**
+
+**HINT**: keep in mind that HTTPS_PROXY has higher priority over HTTP_PROXY.
 
