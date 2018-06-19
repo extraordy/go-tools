@@ -10,9 +10,22 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 )
 
 func main() {
+
+	if len(os.Args) == 1 {
+		fmt.Println("Error: missing remote url.")
+		fmt.Println("Usage:", filepath.Base(os.Args[0]), "<REMOTE_URL>")
+		os.Exit(1)
+	}
+
+	// If more flags need to be added consider using the flag or pflag packages
+	if os.Args[1] == "-h" || os.Args[1] == "--help" {
+		fmt.Println("Usage:", filepath.Base(os.Args[0]), "<REMOTE_URL>")
+		os.Exit(0)
+	}
 
 	// Parse the url
 	testURL := os.Args[1]
