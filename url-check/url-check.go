@@ -5,6 +5,7 @@ package main
 
 import (
 	"crypto/tls"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -15,14 +16,18 @@ import (
 
 func main() {
 
-	if len(os.Args) == 1 {
+	helpFlag := flag.Bool("h", false, "Prints an help")
+
+	flag.Parse()
+	args := flag.Args()
+
+	if !*helpFlag && len(args) == 0 {
 		fmt.Println("Error: missing remote url.")
 		fmt.Println("Usage:", filepath.Base(os.Args[0]), "<REMOTE_URL>")
 		os.Exit(1)
 	}
 
-	// If more flags need to be added consider using the flag or pflag packages
-	if os.Args[1] == "-h" || os.Args[1] == "--help" {
+	if *helpFlag {
 		fmt.Println("Usage:", filepath.Base(os.Args[0]), "<REMOTE_URL>")
 		os.Exit(0)
 	}
