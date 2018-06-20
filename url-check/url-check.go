@@ -28,6 +28,16 @@ func NewProxierWithNoProxyCIDR(delegate func(req *http.Request) (*url.URL, error
 	noProxyRules := strings.Split(noProxyEnv, ",")
 
 	cidrs := []*net.IPNet{}
+
+	// Add-on: Print Raw NO_PROXY rules
+	if len(noProxyRules) != 0 {
+		fmt.Printf("Raw No Proxy Rules:\n")
+		for _, noProxyRule := range noProxyRules {
+			fmt.Printf("%s\n", noProxyRule)
+		}
+		fmt.Printf("\n")
+	}
+
 	for _, noProxyRule := range noProxyRules {
 		_, cidr, _ := net.ParseCIDR(noProxyRule)
 		if cidr != nil {
@@ -38,6 +48,13 @@ func NewProxierWithNoProxyCIDR(delegate func(req *http.Request) (*url.URL, error
 	if len(cidrs) == 0 {
 		return delegate
 	}
+
+	// Add-on: Print cidrs
+	fmt.Printf("NO Proxy CIDRs:\n")
+	for _, cidr := range cidrs {
+		fmt.Println("%s", cidr.String())
+	}
+	fmt.Printf("\n")
 
 	return func(req *http.Request) (*url.URL, error) {
 		ip := net.ParseIP(req.URL.Hostname())
