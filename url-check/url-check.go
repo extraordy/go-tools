@@ -8,11 +8,52 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 )
+
+// NewProxierWithNoProxyCIDR constructs a Proxier function that respects CIDRs in NO_PROXY and delegates if
+// no matching CIDRs are found.
+// Copied from k8s.io/apimachinery/pkg/util/net/http.go to reflect Kubernetes behaviour.
+func NewProxierWithNoProxyCIDR(delegate func(req *http.Request) (*url.URL, error)) func(req *http.Request) (*url.URL, error) {
+	// we wrap the default method, so we only need to perform our check if the NO_PROXY (or no_proxy) envvar has a CIDR in it
+	noProxyEnv := os.Getenv("NO_PROXY")
+	if noProxyEnv == "" {
+		noProxyEnv = os.Getenv("no_proxy")
+	}
+	noProxyRules := strings.Split(noProxyEnv, ",")
+
+	cidrs := []*net.IPNet{}
+	for _, noProxyRule := range noProxyRules {
+		_, cidr, _ := net.ParseCIDR(noProxyRule)
+		if cidr != nil {
+			cidrs = append(cidrs, cidr)
+		}
+	}
+
+	if len(cidrs) == 0 {
+		return delegate
+	}
+
+	return func(req *http.Request) (*url.URL, error) {
+		ip := net.ParseIP(req.URL.Hostname())
+		if ip == nil {
+			return delegate(req)
+		}
+
+		for _, cidr := range cidrs {
+			if cidr.Contains(ip) {
+				return nil, nil
+			}
+		}
+
+		return delegate(req)
+	}
+}
 
 func main() {
 
@@ -46,7 +87,7 @@ func main() {
 	// are expected to work and provide proxy urls and exclusions to the client.
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		Proxy:           http.ProxyFromEnvironment,
+		Proxy:           NewProxierWithNoProxyCIDR(http.ProxyFromEnvironment),
 	}
 	client := &http.Client{Transport: tr}
 
