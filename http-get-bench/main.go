@@ -1,3 +1,5 @@
+// Description: http-get-bench is a small utility to benchmark multiple http GET calls.
+// Author: Giovan Battista Salinetti (gbsalinetti@extraordy.com)
 package main
 
 import (
