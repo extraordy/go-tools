@@ -12,3 +12,4 @@ Please report any issue, we will be happy to work around on it and accept any co
 
 ### Maintainers
 Giovan Battista Salinetti <gbsalinetti@extraordy.com>
+Andrea Miglietta <amiglietta@extraordy.com>
